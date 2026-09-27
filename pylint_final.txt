@@ -1,0 +1,109 @@
+************* Module config
+config.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+config.py:1:0: W0611: Unused import os (unused-import)
+************* Module main
+main.py:233:0: C0304: Final newline missing (missing-final-newline)
+main.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+main.py:21:0: C0413: Import "from db.models import User, init_db" should be placed at the top of the module (wrong-import-position)
+main.py:22:0: C0413: Import "from engine.data_loader import InputCollector" should be placed at the top of the module (wrong-import-position)
+main.py:23:0: C0413: Import "from engine.formatting import score_style" should be placed at the top of the module (wrong-import-position)
+main.py:24:0: C0413: Import "from engine.pattern_detector import PatternDetector" should be placed at the top of the module (wrong-import-position)
+main.py:25:0: C0413: Import "from engine.score_engine import ScoreEngine" should be placed at the top of the module (wrong-import-position)
+main.py:26:0: C0413: Import "from reports.daily_report import DailyReporter" should be placed at the top of the module (wrong-import-position)
+main.py:27:0: C0413: Import "from reports.weekly_report import WeeklyReporter" should be placed at the top of the module (wrong-import-position)
+main.py:130:11: W0718: Catching too general exception Exception (broad-exception-caught)
+main.py:177:0: C0116: Missing function or method docstring (missing-function-docstring)
+main.py:181:11: W0718: Catching too general exception Exception (broad-exception-caught)
+main.py:223:15: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module db.models
+db/models.py:39:0: C0301: Line too long (102/100) (line-too-long)
+db/models.py:40:0: C0301: Line too long (102/100) (line-too-long)
+db/models.py:41:0: C0301: Line too long (102/100) (line-too-long)
+db/models.py:42:0: C0301: Line too long (102/100) (line-too-long)
+db/models.py:43:0: C0301: Line too long (102/100) (line-too-long)
+db/models.py:55:0: C0301: Line too long (105/100) (line-too-long)
+db/models.py:82:0: C0301: Line too long (105/100) (line-too-long)
+db/models.py:83:0: C0301: Line too long (105/100) (line-too-long)
+db/models.py:106:0: C0301: Line too long (102/100) (line-too-long)
+db/models.py:129:0: C0301: Line too long (102/100) (line-too-long)
+db/models.py:130:0: C0301: Line too long (102/100) (line-too-long)
+db/models.py:146:0: C0301: Line too long (102/100) (line-too-long)
+db/models.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+db/models.py:21:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+db/models.py:25:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+db/models.py:46:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+db/models.py:76:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+db/models.py:97:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+db/models.py:120:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+db/models.py:140:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+db/models.py:3:0: W0611: Unused Boolean imported from sqlalchemy (unused-import)
+************* Module reports.weekly_report
+reports/weekly_report.py:504:0: C0304: Final newline missing (missing-final-newline)
+reports/weekly_report.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+reports/weekly_report.py:8:0: C0413: Import "import matplotlib.pyplot as plt" should be placed at the top of the module (wrong-import-position)
+reports/weekly_report.py:9:0: C0413: Import "import matplotlib.ticker as mticker" should be placed at the top of the module (wrong-import-position)
+reports/weekly_report.py:10:0: C0413: Import "import numpy as np" should be placed at the top of the module (wrong-import-position)
+reports/weekly_report.py:11:0: C0413: Import "from rich.console import Console" should be placed at the top of the module (wrong-import-position)
+reports/weekly_report.py:12:0: C0413: Import "from rich.table import Table" should be placed at the top of the module (wrong-import-position)
+reports/weekly_report.py:13:0: C0413: Import "from rich.text import Text" should be placed at the top of the module (wrong-import-position)
+reports/weekly_report.py:15:0: C0413: Import "from db.models import DailyLog, StabilityScore" should be placed at the top of the module (wrong-import-position)
+reports/weekly_report.py:16:0: C0413: Import "from engine.pattern_detector import PatternDetector" should be placed at the top of the module (wrong-import-position)
+reports/weekly_report.py:17:0: C0413: Import "from engine.score_engine import ScoreEngine" should be placed at the top of the module (wrong-import-position)
+reports/weekly_report.py:66:0: C0115: Missing class docstring (missing-class-docstring)
+reports/weekly_report.py:71:4: R0914: Too many local variables (22/15) (too-many-locals)
+reports/weekly_report.py:101:22: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+reports/weekly_report.py:87:8: W0612: Unused variable 'weekly_row' (unused-variable)
+reports/weekly_report.py:402:4: R0914: Too many local variables (18/15) (too-many-locals)
+reports/weekly_report.py:6:0: C0411: third party import "matplotlib" should be placed before first party import "engine.formatting.score_style"  (wrong-import-order)
+reports/weekly_report.py:8:0: C0411: third party import "matplotlib.pyplot" should be placed before first party import "engine.formatting.score_style"  (wrong-import-order)
+reports/weekly_report.py:9:0: C0411: third party import "matplotlib.ticker" should be placed before first party import "engine.formatting.score_style"  (wrong-import-order)
+reports/weekly_report.py:10:0: C0411: third party import "numpy" should be placed before first party import "engine.formatting.score_style"  (wrong-import-order)
+reports/weekly_report.py:11:0: C0411: third party import "rich.console.Console" should be placed before first party import "engine.formatting.score_style"  (wrong-import-order)
+reports/weekly_report.py:12:0: C0411: third party import "rich.table.Table" should be placed before first party import "engine.formatting.score_style"  (wrong-import-order)
+reports/weekly_report.py:13:0: C0411: third party import "rich.text.Text" should be placed before first party import "engine.formatting.score_style"  (wrong-import-order)
+reports/weekly_report.py:16:0: C0412: Imports from package engine are not grouped (ungrouped-imports)
+reports/weekly_report.py:4:0: W0611: Unused score_style imported from engine.formatting (unused-import)
+************* Module reports.daily_report
+reports/daily_report.py:278:0: C0304: Final newline missing (missing-final-newline)
+reports/daily_report.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+reports/daily_report.py:46:0: C0115: Missing class docstring (missing-class-docstring)
+reports/daily_report.py:46:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module engine.data_loader
+engine/data_loader.py:286:0: C0304: Final newline missing (missing-final-newline)
+engine/data_loader.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+engine/data_loader.py:113:26: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+engine/data_loader.py:138:4: R0914: Too many local variables (21/15) (too-many-locals)
+engine/data_loader.py:138:46: W0613: Unused argument 'session' (unused-argument)
+************* Module engine.formatting
+engine/formatting.py:6:0: C0304: Final newline missing (missing-final-newline)
+engine/formatting.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+engine/formatting.py:1:0: C0116: Missing function or method docstring (missing-function-docstring)
+************* Module engine.pattern_detector
+engine/pattern_detector.py:58:0: C0303: Trailing whitespace (trailing-whitespace)
+engine/pattern_detector.py:64:0: C0301: Line too long (107/100) (line-too-long)
+engine/pattern_detector.py:108:0: C0301: Line too long (107/100) (line-too-long)
+engine/pattern_detector.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+************* Module engine.score_engine
+engine/score_engine.py:89:0: C0301: Line too long (104/100) (line-too-long)
+engine/score_engine.py:117:0: C0301: Line too long (108/100) (line-too-long)
+engine/score_engine.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+engine/score_engine.py:10:0: C0115: Missing class docstring (missing-class-docstring)
+engine/score_engine.py:63:19: W0718: Catching too general exception Exception (broad-exception-caught)
+engine/score_engine.py:68:4: R0913: Too many arguments (7/5) (too-many-arguments)
+engine/score_engine.py:68:4: R0917: Too many positional arguments (7/5) (too-many-positional-arguments)
+engine/score_engine.py:88:4: R0914: Too many local variables (24/15) (too-many-locals)
+engine/score_engine.py:176:23: C0321: More than one statement on a single line (multiple-statements)
+engine/score_engine.py:1:0: R0801: Similar lines in 2 files
+==reports.daily_report:[29:38]
+==reports.weekly_report:[58:65]
+    if score >= 75:
+        return "bold green"
+    if score >= 50:
+        return "bold yellow"
+    return "bold red"
+
+ (duplicate-code)
+
+------------------------------------------------------------------
+Your code has been rated at 8.98/10 (previous run: 8.98/10, +0.00)
+
