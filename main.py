@@ -1,4 +1,5 @@
 import os
+
 import sys
 from datetime import date, timedelta
 
@@ -7,6 +8,7 @@ from rich.prompt import Confirm, Prompt
 from rich.table import Table
 from rich.text import Text
 from rich.traceback import install as install_rich_traceback
+from sqlalchemy.exc import SQLAlchemyError
 
 install_rich_traceback(show_locals=False)
 
@@ -17,19 +19,12 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from db.models import User, init_db
-from engine.data_loader import InputCollector, InputValidator
+from engine.data_loader import InputCollector
+from engine.formatting import score_style
 from engine.pattern_detector import PatternDetector
 from engine.score_engine import ScoreEngine
 from reports.daily_report import DailyReporter
 from reports.weekly_report import WeeklyReporter
-
-
-def _score_style(score: float) -> str:
-    if score >= 75:
-        return "bold green"
-    if score >= 50:
-        return "bold yellow"
-    return "bold red"
 
 
 def _print_banner() -> None:
@@ -78,11 +73,16 @@ def _ensure_user_exists(session) -> User:
             session.add(user)
             session.commit()
             session.refresh(user)
-            console.print(f"\n[bold green]Profile created![/bold green] Welcome, [bold]{user.name}[/bold].\n")
+            console.print(
+                f"\n[bold green]Profile created![/bold green] Welcome, "
+                f"[bold]{user.name}[/bold].\n"
+            )
             return user
-        except Exception as exc:
+        except SQLAlchemyError as exc:
             session.rollback()
-            console.print(f"\n[bold red]Error:[/bold red] {exc}\n  Please try again.\n")
+            console.print(
+                f"\n[bold red]Error:[/bold red] {exc}\n  Please try again.\n"
+            )
 
 
 def _option_1_log(user: User, session) -> None:
@@ -97,7 +97,10 @@ def _option_1_log(user: User, session) -> None:
     console.print("\n[dim]Computing stability score...[/dim]")
     overall = engine.compute_daily_score(log_id, user.user_id, session)
 
-    console.print(f"\n[bold]Today's Stability Score:[/bold] [{_score_style(overall)}]{overall:.1f} / 100[/{_score_style(overall)}]")
+    console.print(
+        f"\n[bold]Today's Stability Score:[/bold] "
+        f"[{score_style(overall)}]{overall:.1f} / 100[/{score_style(overall)}]"
+    )
 
     disruptions = detector.detect_disruptions(log_id, user.user_id, session)
     if disruptions:
@@ -125,7 +128,7 @@ def _option_3_weekly_report(user: User, session) -> None:
     try:
         engine.compute_weekly_score(user.user_id, week_start, session)
     except Exception:
-        pass 
+        pass
 
     reporter.print_weekly_report(user.user_id, week_start, session)
 
@@ -144,7 +147,10 @@ def _option_4_history(user: User, session) -> None:
         console.print("[dim]No score history found. Log some days first![/dim]")
         return
 
-    tbl = Table(title="Stability Score History - Last 30 Days", header_style="bold magenta")
+    tbl = Table(
+        title="Stability Score History - Last 30 Days",
+        header_style="bold magenta"
+    )
     tbl.add_column("Date", style="white")
     tbl.add_column("Overall", justify="right")
     tbl.add_column("Sleep", justify="right")
@@ -157,7 +163,7 @@ def _option_4_history(user: User, session) -> None:
         ov  = row["overall_score"]
         tbl.add_row(
             str(row["score_date"]),
-            Text(f"{ov:.1f}", style=_score_style(ov)),
+            Text(f"{ov:.1f}", style=score_style(ov)),
             f"{row['sleep_score']:.1f}",
             f"{row['meal_score']:.1f}",
             f"{row['activity_score']:.1f}",
@@ -173,7 +179,9 @@ def main() -> None:
     try:
         session = init_db(db_path)
     except Exception as exc:
-        console.print(f"[bold red]Failed to initialise database:[/bold red] {exc}")
+        console.print(
+            f"[bold red]Failed to initialise database:[/bold red] {exc}"
+        )
         sys.exit(1)
 
     _print_banner()
@@ -184,7 +192,9 @@ def main() -> None:
         console.print("\n[dim]Setup cancelled.[/dim]")
         sys.exit(0)
 
-    console.print(f"[dim]Logged in as:[/dim] [bold]{user.name}[/bold] ({user.email})\n")
+    console.print(
+        f"[dim]Logged in as:[/dim] [bold]{user.name}[/bold] ({user.email})\n"
+    )
 
     dispatch = {
         "1": ("Log today's habits",   _option_1_log),
