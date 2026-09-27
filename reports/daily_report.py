@@ -25,12 +25,14 @@ _SEVERITY_STYLE: dict[str, str] = {
     "high":   "bold red",
 }
 
+
 def _score_color(score: float) -> str:
     if score >= 75:
         return "bold green"
     if score >= 50:
         return "bold yellow"
     return "bold red"
+
 
 def _stability_badge(pct: float) -> Text:
     """Format the stability percentage as colored text."""
@@ -40,39 +42,104 @@ def _stability_badge(pct: float) -> Text:
         return Text("Moderate", style="yellow")
     return Text("Unstable", style="red")
 
+
 class DailyReporter:
     def __init__(self) -> None:
         self._engine   = ScoreEngine()
         self._detector = PatternDetector()
 
-    def print_daily_report(self, user_id: int, log_date: date, session) -> None:
+    def print_daily_report(
+        self,
+        user_id: int,
+        log_date: date,
+        session,
+    ) -> None:
         """Print the daily report to the terminal."""
 
-        today_log: Optional[DailyLog] = (
+        today_log = self._get_daily_log(
+            user_id,
+            log_date,
+            session,
+        )
+
+        if today_log is None:
+            console.print(
+                f"[bold red]No daily log found for user "
+                f"{user_id} on {log_date}.[/bold red]"
+            )
+            return
+
+        stability_score = self._get_stability_score(
+            user_id,
+            log_date,
+            session,
+        )
+
+        self._print_header(stability_score, log_date)
+        self._print_habit_scores(today_log, user_id, session)
+        self._print_disruptions(today_log, user_id, session)
+        self._print_wellbeing(today_log)
+        self._print_suggestions(user_id, session)
+
+        console.rule()
+
+    def _get_daily_log(
+        self,
+        user_id: int,
+        log_date: date,
+        session,
+    ) -> Optional[DailyLog]:
+        return (
             session.query(DailyLog)
             .filter_by(user_id=user_id, log_date=log_date)
             .first()
         )
-        if today_log is None:
-            console.print(f"[bold red]No daily log found for user {user_id} on {log_date}.[/bold red]")
-            return
 
-        ss: Optional[StabilityScore] = (
+    def _get_stability_score(
+        self,
+        user_id: int,
+        log_date: date,
+        session,
+    ) -> Optional[StabilityScore]:
+        return (
             session.query(StabilityScore)
-            .filter_by(user_id=user_id, score_date=log_date, period_type="daily")
+            .filter_by(
+                user_id=user_id,
+                score_date=log_date,
+                period_type="daily",
+            )
             .first()
         )
 
+    def _print_header(
+        self,
+        stability_score: Optional[StabilityScore],
+        log_date: date,
+    ) -> None:
         console.rule()
-        console.print(f"[bold cyan]Daily Stability Report - {log_date.strftime('%A, %d %B %Y')}[/bold cyan]")
+        console.print(
+            f"[bold cyan]Daily Stability Report - "
+            f"{log_date.strftime('%A, %d %B %Y')}[/bold cyan]"
+        )
 
-        if ss and ss.overall_score is not None:
-            score_val = ss.overall_score
+        if stability_score and stability_score.overall_score is not None:
+            score_val = stability_score.overall_score
             col = _score_color(score_val)
-            console.print(f"[bold]Overall Stability Score:[/bold] [{col}]{score_val:.1f} / 100[/{col}]")
+            console.print(
+                f"[bold]Overall Stability Score:[/bold] "
+                f"[{col}]{score_val:.1f} / 100[/{col}]"
+            )
         else:
-            console.print("[dim]Overall score not yet computed for this day.[/dim]")
+            console.print(
+                "[dim]Overall score not yet computed for this day.[/dim]"
+            )
 
+    def _print_habit_scores(
+        self,
+        today_log: DailyLog,
+        user_id: int,
+        session,
+    ) -> None:
         habit_scores: list[HabitScore] = (
             session.query(HabitScore)
             .filter_by(log_id=today_log.log_id, user_id=user_id)
@@ -80,7 +147,11 @@ class DailyReporter:
         )
 
         if habit_scores:
-            tbl = Table(title="Habit Breakdown", show_header=True, header_style="bold magenta")
+            tbl = Table(
+                title="Habit Breakdown",
+                show_header=True,
+                header_style="bold magenta",
+            )
             tbl.add_column("Habit", style="white")
             tbl.add_column("Today's Value", style="cyan", justify="right")
             tbl.add_column("7-Day Average", style="blue", justify="right")
@@ -88,51 +159,120 @@ class DailyReporter:
             tbl.add_column("Status", justify="center")
 
             for hs in habit_scores:
-                label   = _HABIT_LABELS.get(hs.habit_type, hs.habit_type)
-                raw     = f"{hs.raw_value:.2f}" if hs.raw_value is not None else "-"
-                mean    = f"{hs.seven_day_mean:.2f}" if hs.seven_day_mean is not None else "-"
-                pct     = hs.stability_pct or 0.0
+                label = _HABIT_LABELS.get(hs.habit_type, hs.habit_type)
+                raw = (
+                    f"{hs.raw_value:.2f}"
+                    if hs.raw_value is not None
+                    else "-"
+                )
+                mean = (
+                    f"{hs.seven_day_mean:.2f}"
+                    if hs.seven_day_mean is not None
+                    else "-"
+                )
+                pct = hs.stability_pct or 0.0
                 pct_str = f"{pct:.1f}%"
-                badge   = _stability_badge(pct)
-                tbl.add_row(label, raw, mean, pct_str, badge)
+                badge = _stability_badge(pct)
+
+                tbl.add_row(
+                    label,
+                    raw,
+                    mean,
+                    pct_str,
+                    badge,
+                )
 
             console.print(tbl)
         else:
-            console.print("[dim]No habit scores found. Run the score engine first.[/dim]")
+            console.print(
+                "[dim]No habit scores found. "
+                "Run the score engine first.[/dim]"
+            )
 
+    def _print_disruptions(
+        self,
+        today_log: DailyLog,
+        user_id: int,
+        session,
+    ) -> None:
         disruptions: list[Disruption] = (
             session.query(Disruption)
             .filter_by(log_id=today_log.log_id, user_id=user_id)
             .all()
         )
+
         console.print()
+
         if disruptions:
             console.print("[bold red]Disruptions Detected[/bold red]")
             for d in disruptions:
-                badge_style = _SEVERITY_STYLE.get(d.severity, "white")
-                console.print(f"  [{badge_style}]{d.severity.upper()}[/{badge_style}] {d.description}")
+                badge_style = _SEVERITY_STYLE.get(
+                    d.severity,
+                    "white",
+                )
+                console.print(
+                    f"  [{badge_style}]{d.severity.upper()}"
+                    f"[/{badge_style}] {d.description}"
+                )
         else:
-            console.print("[green]No disruptions detected today.[/green]")
+            console.print(
+                "[green]No disruptions detected today.[/green]"
+            )
 
+    def _print_wellbeing(self, today_log: DailyLog) -> None:
         console.print("\n[bold]Wellbeing Check-in[/bold]")
+
         wt = Table(show_header=False, box=None)
         wt.add_column(style="dim")
         wt.add_column(style="white")
-        wt.add_row("Mood:", str(today_log.mood_score or "-"))
-        wt.add_row("Energy:", str(today_log.energy_score or "-"))
-        wt.add_row("Productivity:", str(today_log.productivity_score or "-"))
+
+        wt.add_row(
+            "Mood:",
+            str(today_log.mood_score or "-"),
+        )
+        wt.add_row(
+            "Energy:",
+            str(today_log.energy_score or "-"),
+        )
+        wt.add_row(
+            "Productivity:",
+            str(today_log.productivity_score or "-"),
+        )
+
         if today_log.notes:
-            wt.add_row("Notes:", today_log.notes)
+            wt.add_row(
+                "Notes:",
+                today_log.notes,
+            )
+
         console.print(wt)
 
-        suggestions = self._detector.generate_suggestions(user_id, session)
+    def _print_suggestions(
+        self,
+        user_id: int,
+        session,
+    ) -> None:
+        suggestions = self._detector.generate_suggestions(
+            user_id,
+            session,
+        )
+
         console.print()
+
         if suggestions:
             console.print("[bold cyan]Top Suggestions[/bold cyan]")
-            for i, s in enumerate(suggestions, 1):
-                habit_label = _HABIT_LABELS.get(s["habit_type"], s["habit_type"])
-                console.print(f"  [bold]{i}.[/bold] [dim]({habit_label})[/dim] {s['suggestion_text']}")
-        else:
-            console.print("[green]Great work — no suggestions needed today![/green]")
 
-        console.rule()
+            for i, suggestion in enumerate(suggestions, 1):
+                habit_label = _HABIT_LABELS.get(
+                    suggestion["habit_type"],
+                    suggestion["habit_type"],
+                )
+                console.print(
+                    f"  [bold]{i}.[/bold] "
+                    f"[dim]({habit_label})[/dim] "
+                    f"{suggestion['suggestion_text']}"
+                )
+        else:
+            console.print(
+                "[green]Great work — no suggestions needed today![/green]"
+            )
